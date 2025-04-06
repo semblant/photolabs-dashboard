@@ -52,6 +52,22 @@ class Dashboard extends Component {
 
   componentDidMount() {
     const focused = JSON.parse(localStorage.getItem("focused"));
+
+    const urlsPromise = [
+      "/api/photos",
+      "/api/topics",
+    ].map(url => fetch(url).then(response => response.json()));
+
+    Promise.all(urlsPromise)
+    .then(([photos, topics]) => {
+      console.log(photos,topics)
+      this.setState({
+        loading: false,
+        photos: photos,
+        topics: topics
+      })
+    })
+
   };
 
   if (focused) {
@@ -70,6 +86,7 @@ class Dashboard extends Component {
   };
 
   render() {
+    console.log(this.state)
     const dashboardClasses = classnames("dashboard", {
       "dashboard--focused": this.state.focused
     });
@@ -79,21 +96,8 @@ class Dashboard extends Component {
       return <Loading />
     };
 
+    fetch("/api/photos").then(response => console.log(response.json()))
 
-    const urlsPromise = [
-      "/api/photos",
-      "/api/topics",
-    ].map(url => fetch(url).then(response => response.json()));
-
-
-    Promise.all(urlsPromise)
-    .then(([photos, topics]) => {
-      this.setState({
-        loading: false,
-        photos: photos,
-        topics: topics
-      })
-    })
 
     const panelData = (this.state.focused ? data.filter(panel => this.state.focused === panel.id) : data)
       .map((panel) => (
